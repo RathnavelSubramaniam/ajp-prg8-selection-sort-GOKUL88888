@@ -1,0 +1,37 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: SelectionSort.java
+      id: selectionsort-java
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: SelectionSort.java
+        setup-command: javac SelectionSort.java
+        command: java SelectionSort
+        input: ''
+        expected-output: |-
+          Original Integer Array:5 3 9 1 7
+          Original Float Array:5.5 3.3 9.9 1.1 7.7
+          Sorted Integer Array:1 3 5 7 9
+          Sorted Float Array:1.1 3.3 5.5 7.7 9.9
+        comparison-method: contains
+        timeout: 10
+        max-score: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        SELECTIONSORT-JAVA_RESULTS: "${{steps.selectionsort-java.outputs.result}}"
+      with:
+        runners: selectionsort-java
